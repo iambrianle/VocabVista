@@ -3,28 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Heatmap Word</title>
+    <title>Text Analysis Heatmap</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>Heatmap Word</h1>
-    <textarea id="text-input" placeholder="Enter text here..."></textarea>
-    <button id="analyze-btn">Analyze</button>
+    <header>
+        <h1>Text Analysis Heatmap</h1>
+        <p>Visualize word frequency in your text with color-coded insights</p>
+    </header>
     
-    <!-- Color Scale Legend -->
-    <div class="color-scale">
-        <div class="color-scale-title">Word Frequency Scale</div>
-        <div class="color-scale-legend" id="color-scale-legend"></div>
-        <div class="color-scale-labels">
-            <span>Rare</span>
-            <span>Uncommon</span>
-            <span>Common</span>
-            <span>Frequent</span>
-            <span>Very Common</span>
+    <div class="container">
+        <textarea id="text-input" placeholder="Enter or paste your text here to analyze word frequency..."></textarea>
+        <button id="analyze-btn">Analyze Text</button>
+        
+        <!-- Color Scale Legend -->
+        <div class="color-scale">
+            <div class="color-scale-title">Word Frequency Legend</div>
+            <div class="color-scale-legend" id="color-scale-legend"></div>
+            <div class="color-scale-labels">
+                <span>Very Rare</span>
+                <span>Rare</span>
+                <span>Uncommon</span>
+                <span>Common</span>
+                <span>Very Common</span>
+            </div>
         </div>
+        
+        <h2>Analysis Results</h2>
+        <div id="heatmap-output"></div>
     </div>
     
-    <div id="heatmap-output"></div>
+    <footer>
+        <p>Text Analysis Heatmap Tool &copy; 2025 | Visualize word frequency with color-coded insights</p>
+    </footer>
+    
     <script src="script.js"></script>
 </body>
 </html>

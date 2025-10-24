@@ -29,10 +29,11 @@ document.getElementById('analyze-btn').addEventListener('click', () => {
             if (item.color) {
                 // For words, apply the heatmap color
                 span.style.backgroundColor = item.color;
-                span.style.padding = '2px 4px';
+                span.style.padding = '3px 6px';
                 span.style.margin = '0 1px';
+                span.style.borderRadius = '4px';
                 // Add tooltip to show frequency and rarity classification
-                span.title = `Frequency: ${item.frequency} (per million) - ${getRarityLabel(item.frequency)}`;
+                span.title = `Frequency: ${item.frequency.toFixed(2)} (per million) - ${item.rarity}`;
             } else {
                 // For non-word tokens (spaces, punctuation), don't apply color
                 span.style.backgroundColor = 'transparent';
