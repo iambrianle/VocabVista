@@ -8,6 +8,7 @@ import requests
 import time
 from functools import wraps
 import os
+import threading
 
 app = Flask(__name__)
 CORS(app)
@@ -15,6 +16,11 @@ CORS(app)
 # Simple in-memory cache
 word_cache = {}
 CACHE_SIZE_LIMIT = 1000  # Limit cache size to prevent memory issues
+
+# Rate limiting variables
+last_api_call_time = 0
+api_call_lock = threading.Lock()
+MIN_TIME_BETWEEN_CALLS = 1.0 / 9.5  # Minimum time between API calls (to stay under 9.5 requests/second)
 
 # Fallback frequency data (small dataset for when API is unavailable)
 FALLBACK_FREQUENCIES = {
@@ -89,6 +95,16 @@ FALLBACK_FREQUENCIES = {
     'distant': 0.35, 'fill': 0.35, 'east': 0.35, 'paint': 0.35, 'language': 0.35, 'among': 0.34
 }
 
+def wait_for_rate_limit():
+    """Ensure we don't exceed 9.5 API requests per second"""
+    global last_api_call_time
+    with api_call_lock:
+        time_since_last_call = time.time() - last_api_call_time
+        if time_since_last_call < MIN_TIME_BETWEEN_CALLS:
+            sleep_time = MIN_TIME_BETWEEN_CALLS - time_since_last_call
+            time.sleep(sleep_time)
+        last_api_call_time = time.time()
+
 def get_frequency_from_api(word):
     """Get word frequency from Datamuse API (frequency per million words) with caching"""
     word_lower = word.lower()
@@ -99,6 +115,9 @@ def get_frequency_from_api(word):
     
     try:
         import requests
+        # Enforce rate limiting before making API call
+        wait_for_rate_limit()
+        
         # Datamuse API call to get word frequency
         url = f"https://api.datamuse.com/words?sp={word_lower}&qe=sp&md=f&max=1"
         response = requests.get(url, timeout=5)
