@@ -58,6 +58,40 @@ button:disabled {
     cursor: help;
 }
 
+/* Color scale legend */
+.color-scale {
+    width: 80%;
+    margin: 20px auto;
+    padding: 15px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #f9f9f9;
+}
+
+.color-scale-title {
+    text-align: center;
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+.color-scale-legend {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 30px;
+    background: linear-gradient(to right, red, orange, yellow, lightgreen, green);
+    border-radius: 4px;
+    margin-bottom: 10px;
+    position: relative;
+}
+
+.color-scale-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: #333;
+}
+
 /* Processing indicator */
 .processing-indicator {
     text-align: center;

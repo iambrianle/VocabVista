@@ -31,8 +31,8 @@ document.getElementById('analyze-btn').addEventListener('click', () => {
                 span.style.backgroundColor = item.color;
                 span.style.padding = '2px 4px';
                 span.style.margin = '0 1px';
-                // Add tooltip to show frequency
-                span.title = `Frequency: ${item.frequency}`;
+                // Add tooltip to show frequency and rarity classification
+                span.title = `Frequency: ${item.frequency} (per million) - ${getRarityLabel(item.frequency)}`;
             } else {
                 // For non-word tokens (spaces, punctuation), don't apply color
                 span.style.backgroundColor = 'transparent';
@@ -51,3 +51,18 @@ document.getElementById('analyze-btn').addEventListener('click', () => {
         analyzeBtn.textContent = 'Analyze';
     });
 });
+
+// Function to determine word rarity classification
+function getRarityLabel(frequency) {
+    if (frequency <= 0.1) {
+        return 'Very Rare';
+    } else if (frequency <= 1) {
+        return 'Rare';
+    } else if (frequency <= 10) {
+        return 'Uncommon';
+    } else if (frequency <= 100) {
+        return 'Common';
+    } else {
+        return 'Very Common';
+    }
+}

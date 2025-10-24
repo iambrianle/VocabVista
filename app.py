@@ -177,10 +177,23 @@ def analyze_text():
             
             color = f'hsl({hue:.1f}, {saturation}%, {lightness}%)'
             
+            # Determine rarity category based on frequency
+            if freq <= 0.1:
+                rarity = "Very Rare"
+            elif freq <= 1:
+                rarity = "Rare"
+            elif freq <= 10:
+                rarity = "Uncommon"
+            elif freq <= 100:
+                rarity = "Common"
+            else:
+                rarity = "Very Common"
+            
             results.append({
                 'token': token,
                 'color': color,
                 'frequency': freq,
+                'rarity': rarity,
                 'position': start_pos
             })
         else:  # If it's not a word (space, punctuation)

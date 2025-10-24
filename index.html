@@ -10,6 +10,20 @@
     <h1>Heatmap Word</h1>
     <textarea id="text-input" placeholder="Enter text here..."></textarea>
     <button id="analyze-btn">Analyze</button>
+    
+    <!-- Color Scale Legend -->
+    <div class="color-scale">
+        <div class="color-scale-title">Word Frequency Scale</div>
+        <div class="color-scale-legend" id="color-scale-legend"></div>
+        <div class="color-scale-labels">
+            <span>Rare</span>
+            <span>Uncommon</span>
+            <span>Common</span>
+            <span>Frequent</span>
+            <span>Very Common</span>
+        </div>
+    </div>
+    
     <div id="heatmap-output"></div>
     <script src="script.js"></script>
 </body>
