@@ -1,0 +1,75 @@
+body {
+    font-family: sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+}
+
+h1 {
+    margin-bottom: 20px;
+}
+
+textarea {
+    width: 80%;
+    height: 200px;
+    margin-bottom: 1rem;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+button {
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-bottom: 20px;
+}
+
+button:hover {
+    background-color: #45a049;
+}
+
+button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
+
+#heatmap-output {
+    width: 80%;
+    border: 1px solid #ccc;
+    padding: 1rem;
+    background-color: #f9f9f9;
+    border-radius: 4px;
+    line-height: 1.6;
+    min-height: 100px;
+    max-height: 400px;
+    overflow-y: auto;
+    font-size: 18px;
+}
+
+/* Style for the highlighted words */
+#heatmap-output span {
+    cursor: help;
+}
+
+/* Processing indicator */
+.processing-indicator {
+    text-align: center;
+    padding: 20px;
+    color: #555;
+    font-style: italic;
+}
+
+/* Error message */
+.error-message {
+    text-align: center;
+    padding: 20px;
+    color: #d32f2f;
+    font-weight: bold;
+}

@@ -1,0 +1,2 @@
+I want to make a webapp that when you put a particular text in it analyses someway and comeback with a heatmap red as rare word usage of a particular word and 
+  green as common usage of a word
