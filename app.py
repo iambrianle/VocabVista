@@ -6,9 +6,15 @@ from collections import Counter
 import json
 import requests
 import time
+from functools import wraps
+import os
 
 app = Flask(__name__)
 CORS(app)
+
+# Simple in-memory cache
+word_cache = {}
+CACHE_SIZE_LIMIT = 1000  # Limit cache size to prevent memory issues
 
 # Fallback frequency data (small dataset for when API is unavailable)
 FALLBACK_FREQUENCIES = {
@@ -84,39 +90,77 @@ FALLBACK_FREQUENCIES = {
 }
 
 def get_frequency_from_api(word):
-    """Get word frequency from Datamuse API (frequency per million words)"""
+    """Get word frequency from Datamuse API (frequency per million words) with caching"""
+    word_lower = word.lower()
+    
+    # Check cache first
+    if word_lower in word_cache:
+        return word_cache[word_lower]
+    
     try:
         import requests
         # Datamuse API call to get word frequency
-        url = f"https://api.datamuse.com/words?sp={word.lower()}&qe=sp&md=f&max=1"
+        url = f"https://api.datamuse.com/words?sp={word_lower}&qe=sp&md=f&max=1"
         response = requests.get(url, timeout=5)
         
         if response.status_code == 200:
             data = response.json()
-            if data and 'tags' in data[0]:
-                # Look for the frequency tag (format: f:frequency_per_million)
-                freq_tags = [tag for tag in data[0]['tags'] if tag.startswith('f:')]
-                if freq_tags:
-                    # Extract the frequency value (after the 'f:' prefix)
-                    freq = float(freq_tags[0][2:])  # Remove 'f:' prefix and convert to float
-                    return freq  # Frequency per million words
-                else:
-                    # If no frequency tag found, use fallback
-                    return FALLBACK_FREQUENCIES.get(word.lower(), 0.1)
-            else:
-                # If no data returned, use fallback
-                return FALLBACK_FREQUENCIES.get(word.lower(), 0.1)
+            if data and len(data) > 0:
+                # Check if the response has the expected structure
+                first_result = data[0]
+                if 'tags' in first_result:
+                    # Look for the frequency tag (format: f:frequency_per_million)
+                    freq_tags = [tag for tag in first_result['tags'] if tag.startswith('f:')]
+                    if freq_tags:
+                        # Extract the frequency value (after the 'f:' prefix)
+                        freq = float(freq_tags[0][2:])  # Remove 'f:' prefix and convert to float
+                        # Add to cache before returning
+                        if len(word_cache) < CACHE_SIZE_LIMIT:
+                            word_cache[word_lower] = freq
+                        return freq  # Frequency per million words
+                # If no frequency tag found or tags not available, check for 'freq' field directly
+                elif 'freq' in first_result:
+                    freq = float(first_result['freq'])
+                    # Add to cache before returning
+                    if len(word_cache) < CACHE_SIZE_LIMIT:
+                        word_cache[word_lower] = freq
+                    return freq
+            # If no data returned or structure not as expected, use fallback
+            freq = FALLBACK_FREQUENCIES.get(word_lower, 0.1)
+            if len(word_cache) < CACHE_SIZE_LIMIT:
+                word_cache[word_lower] = freq
+            return freq
         else:
             # If API call fails, use fallback
-            return FALLBACK_FREQUENCIES.get(word.lower(), 0.1)
+            if os.getenv('FLASK_ENV') != 'production':
+                print(f"API request failed with status code: {response.status_code}")
+            freq = FALLBACK_FREQUENCIES.get(word_lower, 0.1)
+            if len(word_cache) < CACHE_SIZE_LIMIT:
+                word_cache[word_lower] = freq
+            return freq
     except Exception as e:
         # If any error occurs, use fallback
-        print(f"Error fetching frequency for '{word}': {e}")
-        return FALLBACK_FREQUENCIES.get(word.lower(), 0.1)
+        if os.getenv('FLASK_ENV') != 'production':
+            print(f"Error fetching frequency for '{word}': {e}")
+            import traceback
+            traceback.print_exc()
+        freq = FALLBACK_FREQUENCIES.get(word_lower, 0.1)
+        if len(word_cache) < CACHE_SIZE_LIMIT:
+            word_cache[word_lower] = freq
+        return freq
 
 def get_word_frequency(word):
     """Get the frequency of a word using API if available, fallback otherwise."""
     return get_frequency_from_api(word)
+
+
+def cleanup_cache():
+    """Periodically clean up the cache to manage memory"""
+    global word_cache
+    if len(word_cache) > CACHE_SIZE_LIMIT:
+        # Keep only the most recently used entries
+        items = list(word_cache.items())[-CACHE_SIZE_LIMIT//2:]  # Keep half of the limit
+        word_cache = dict(items)
 
 @app.route('/analyze', methods=['POST'])
 def analyze_text():
@@ -203,6 +247,9 @@ def analyze_text():
                 'frequency': None,
                 'position': start_pos
             })
+    
+    # Clean up cache periodically to manage memory
+    cleanup_cache()
     
     return jsonify(results)
 

@@ -8,16 +8,22 @@ document.getElementById('analyze-btn').addEventListener('click', () => {
     analyzeBtn.textContent = 'Processing...';
     heatmapOutput.innerHTML = '<div class="processing-indicator">Analyzing text... This may take a moment for large texts.</div>';
     
-    const baseUrl = window.location.hostname === 'localhost' ? 'http://127.0.0.1:5000' : window.location.origin;
-fetch(`${baseUrl}/analyze`, {
+    const baseUrl = window.location.origin;
+    fetch(`${baseUrl}/analyze`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
         },
         body: JSON.stringify({ text })
     })
-    .then(response => response.json())
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+    })
     .then(data => {
+        console.log('API Response:', data); // Debug log
         heatmapOutput.innerHTML = '';
         
         // Sort tokens by their position in the original text
@@ -42,9 +48,14 @@ fetch(`${baseUrl}/analyze`, {
             
             heatmapOutput.appendChild(span);
         });
+        
+        if (data.length === 0) {
+            heatmapOutput.innerHTML = '<div class="error-message">No text to analyze. Please enter some text.</div>';
+        }
     })
     .catch(error => {
         console.error('Error:', error);
+        console.error('Error details:', error.message, error.stack);
         heatmapOutput.innerHTML = '<div class="error-message">Error analyzing text. Please try again.</div>';
     })
     .finally(() => {
