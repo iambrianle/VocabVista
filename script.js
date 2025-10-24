@@ -8,7 +8,8 @@ document.getElementById('analyze-btn').addEventListener('click', () => {
     analyzeBtn.textContent = 'Processing...';
     heatmapOutput.innerHTML = '<div class="processing-indicator">Analyzing text... This may take a moment for large texts.</div>';
     
-    fetch('http://127.0.0.1:5000/analyze', {
+    const baseUrl = window.location.hostname === 'localhost' ? 'http://127.0.0.1:5000' : window.location.origin;
+fetch(`${baseUrl}/analyze`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
